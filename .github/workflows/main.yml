@@ -26,8 +26,10 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Run tests
-        run: pytest -q
-
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: python -m pytest -q
+  
       - name: Package app
         run: |
           mkdir -p dist
