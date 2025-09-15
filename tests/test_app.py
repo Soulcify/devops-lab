@@ -1,4 +1,4 @@
-from app import hello
+from app import get_message
 
 def test_hello():
-    assert hello() == "Hello, DevOps!"
+    assert get_message() == "Hello, DevOps!"
