@@ -1,0 +1,14 @@
+notify-discord:
+  name: Discord Alert
+  needs: deploy 
+  runs-on: ubuntu-latest
+  steps:
+    - name: Send Discord Alert
+      uses: Ilshidur/action-discord@v2
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        message: |
+          ✅ CI/CD Workflow concluído!
+          Repositório: ${{ github.repository }}
+          Commit: ${{ github.sha }}
+          Branch: ${{ github.ref }}
