@@ -1,18 +1,14 @@
-name: CI/CD
+name: CI/CD Workflow
 
 on:
-  pull_request:
-    branches: [ main ]
   push:
     branches: [ main ]
 
 jobs:
   build:
-    name: build (tests + artifact)
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -29,34 +25,24 @@ jobs:
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: python -m pytest -q
-  
-      - name: Package app
-        run: |
-          mkdir -p dist
-          cp app.py dist/ || true
-          cp requirements.txt dist/ || true
-          (cd dist && zip -r app.zip .)
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-package
-          path: dist/
 
   deploy:
-    name: deploy (simulado)
     needs: build
     runs-on: ubuntu-latest
-
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: app-package
-          path: release/
-
       - name: Deploy step
-        run: |
-          echo "Listando o pacote gerado:"
-          ls -R release
-          echo "Deploy concluído (simulado)."
+        run: echo "Deploy simulado concluído."
+
+  notify-discord:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord Alert
+        uses: Ilshidur/action-discord@v2
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          message: |
+            🔔 CI/CD finalizado com sucesso!
+            Repositório: ${{ github.repository }}
+            SHA: ${{ github.sha }}
+            Branch: ${{ github.ref }}
