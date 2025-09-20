@@ -3,9 +3,11 @@ name: CI/CD Workflow
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
+    name: Build & Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -26,24 +28,62 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: python -m pytest -q
 
+      - name: Package app
+        run: |
+          mkdir -p dist
+          cp app.py dist/ || true
+          cp requirements.txt dist/ || true
+          (cd dist && zip -r app.zip .)
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-package
+          path: dist/
+
   deploy:
+    name: Deploy (simulado)
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-package
+          path: release/
+
       - name: Deploy step
-        run: echo "Deploy simulado concluído."
+        run: |
+          echo "Listando o pacote gerado:"
+          ls -R release
+          echo "🚀 Deploy simulado concluído."
 
   notify-discord:
-  needs: deploy
-  runs-on: ubuntu-latest
-  steps:
-    - name: Send Discord Alert
-      uses: Ilshidur/action-discord@master
-      env:
-        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
-      with:
-        args: |
-          🔔 CI/CD finalizado com sucesso!
-          📂 Repositório: ${{ github.repository }}
-          🆔 SHA: ${{ github.sha }}
-          🌿 Branch: ${{ github.ref }}
+    name: Discord Alert
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    # envia alerta em sucesso OU falha (do pipeline anterior)
+    steps:
+      - name: Send success alert
+        if: ${{ success() }}
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        with:
+          args: |
+            ✅ CI/CD finalizado com sucesso!
+            📦 Repo: ${{ github.repository }}
+            🌿 Ref:  ${{ github.ref }}
+            🔗 Run:  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Send failure alert
+        if: ${{ failure() }}
+        uses: Ilshidur/action-discord@master
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        with:
+          args: |
+            ❌ CI/CD falhou.
+            📦 Repo: ${{ github.repository }}
+            🌿 Ref:  ${{ github.ref }}
+            🔗 Run:  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
