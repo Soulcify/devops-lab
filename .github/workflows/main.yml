@@ -34,15 +34,16 @@ jobs:
         run: echo "Deploy simulado concluído."
 
   notify-discord:
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send Discord Alert
-        uses: Ilshidur/action-discord@master
-        with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          message: |
-            🔔 CI/CD finalizado com sucesso!
-            Repositório: ${{ github.repository }}
-            SHA: ${{ github.sha }}
-            Branch: ${{ github.ref }}
+  needs: deploy
+  runs-on: ubuntu-latest
+  steps:
+    - name: Send Discord Alert
+      uses: Ilshidur/action-discord@master
+      env:
+        DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      with:
+        args: |
+          🔔 CI/CD finalizado com sucesso!
+          📂 Repositório: ${{ github.repository }}
+          🆔 SHA: ${{ github.sha }}
+          🌿 Branch: ${{ github.ref }}
