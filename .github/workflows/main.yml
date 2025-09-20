@@ -56,13 +56,13 @@ jobs:
         run: |
           echo "Listando o pacote gerado:"
           ls -R release
-          echo "🚀 Deploy simulado concluído."
+          echo "Deploy simulado concluído."
 
   notify-discord:
     name: Discord Alert
     needs: [deploy]
     runs-on: ubuntu-latest
-    # envia alerta em sucesso OU falha (do pipeline anterior)
+  
     steps:
       - name: Send success alert
         if: ${{ success() }}
@@ -71,10 +71,10 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
         with:
           args: |
-            ✅ CI/CD finalizado com sucesso!
-            📦 Repo: ${{ github.repository }}
-            🌿 Ref:  ${{ github.ref }}
-            🔗 Run:  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+             CI/CD finalizado com sucesso!
+             Repo: ${{ github.repository }}
+             Ref:  ${{ github.ref }}
+             Run:  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Send failure alert
         if: ${{ failure() }}
@@ -83,7 +83,7 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
         with:
           args: |
-            ❌ CI/CD falhou.
-            📦 Repo: ${{ github.repository }}
-            🌿 Ref:  ${{ github.ref }}
-            🔗 Run:  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+             CI/CD falhou.
+             Repo: ${{ github.repository }}
+             Ref:  ${{ github.ref }}
+             Run:  ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
