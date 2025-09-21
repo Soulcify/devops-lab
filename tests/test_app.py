@@ -29,6 +29,6 @@ def test_to_upper():
 def test_flask_client():
     app = create_app()
     client = app.test_client()
-    response = client.get("/")
-    assert response.status_code == 200
-    assert b"Hello, DevOps!" in response.data
+    resp = client.get("/")
+    assert resp.status_code == 200
+    assert b"Hello, DevOps!" in resp.data
