@@ -1,5 +1,6 @@
 from flask import Flask
 
+# Funções utilitárias para testar
 def get_message():
     return "Hello, DevOps!"
 
@@ -18,6 +19,7 @@ def average(nums):
 def to_upper(text: str) -> str:
     return text.upper()
 
+# Flask app
 def create_app():
     app = Flask(__name__)
 

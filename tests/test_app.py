@@ -25,3 +25,10 @@ def test_average_empty_raises():
 
 def test_to_upper():
     assert to_upper("DevOps") == "DEVOPS"
+
+def test_flask_client():
+    app = create_app()
+    client = app.test_client()
+    resp = client.get("/")
+    assert resp.status_code == 200
+    assert b"Hello, DevOps!" in resp.data
